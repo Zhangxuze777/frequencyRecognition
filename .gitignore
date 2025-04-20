@@ -1,0 +1,12 @@
+# 忽略构建输出
+build/
+*.bin
+*.elf
+*.map
+
+# 忽略 VS Code 设置
+.vscode/
+
+# 忽略配置缓存
+sdkconfig.old
+*.log
