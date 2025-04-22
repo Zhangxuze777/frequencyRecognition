@@ -62,7 +62,8 @@ void i2s_reader_init()
 
 // Perform FFT on the collected audio samples and detect dominant frequency
 void fft_process()
-{
+{   
+    static int high_freq_count = 0;
     // Apply Hann window and prepare complex input (imaginary parts = 0)
     for (int i = 0; i < FFT_LEN; i++) {
         fft_input[i * 2]     = (float)sBuffer[i] * window[i];  // Real part
@@ -89,8 +90,18 @@ void fft_process()
 
     // Convert bin index to frequency and apply correction factor
     float frequency = ((float)max_index * SAMPLE_RATE / FFT_LEN) * 2.13675f;
-    ESP_LOGI(TAG, "the main frequency is  %.2f Hz", frequency);
+    //ESP_LOGI(TAG, "the main frequency is  %.2f Hz", frequency);
+    if (frequency > 1000.0f) {
+        high_freq_count++;
+        if (high_freq_count >= 10) {
+            ESP_LOGW(TAG, "baby is crying!!!!!!");
+            high_freq_count = 0;  // 重置计数器
+        }
+    } else {
+        high_freq_count = 0;  // 只要有一次未达标就清零
+    }
 }
+
 
 // Main application entry point
 void app_main()
