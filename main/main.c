@@ -21,7 +21,7 @@
 
 static const char* TAG = "FFT";
 static i2s_chan_handle_t rx_handle;
-static int16_t sBuffer[BUFFER_LEN];                           // Raw audio buffer (signed 16-bit samples)
+static int8_t sBuffer[BUFFER_LEN];                           // Raw audio buffer (signed 8-bit samples)   CHANGING
 __attribute__((aligned(16))) float fft_input[FFT_LEN * 2];   // Interleaved complex input array [real, imag, real, imag...]
 __attribute__((aligned(16))) float window[FFT_LEN];          // Hann window coefficients
 
@@ -66,8 +66,9 @@ void fft_process()
     static int high_freq_count = 0;
     // Apply Hann window and prepare complex input (imaginary parts = 0)
     for (int i = 0; i < FFT_LEN; i++) {
-        fft_input[i * 2]     = (float)sBuffer[i] * window[i];  // Real part
-        fft_input[i * 2 + 1] = 0.0f;                            // Imaginary part
+        float centered = ((float)sBuffer[i]) - 128.0f; // 移除直流偏置
+        fft_input[i * 2]     = centered * window[i];  // Real part with windowing
+        fft_input[i * 2 + 1] = 0.0f;
     }
 
     // Perform FFT
